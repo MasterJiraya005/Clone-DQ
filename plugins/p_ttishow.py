@@ -48,20 +48,20 @@ async def save_group(bot, message):
             text=f"<b>Thankyou For Adding Me In {message.chat.title} ❣️\n\nIf you have any questions & doubts about using me contact support.</b>",
             reply_markup=reply_markup)
 
-    # group action control
-    chatID = message.chat.id
-    chatTitle = message.chat.title
-    lz_buttons = [
-        [
-            InlineKeyboardButton('BAN', callback_data=f"bangrpchat:{chatTitle}:{chatID}")
-        ],[
-            InlineKeyboardButton('Close', callback_data="close_data")
-        ]]
-    lazy_markup=InlineKeyboardMarkup(lz_buttons)
-    await bot.send_message(LAZY_GROUP_LOGS,
-                          text=f"Plese Don't add me in this group....🤬🤬🤬",
-                          reply_markup=lazy_markup)
-    
+        # group action control
+        chatID = message.chat.id
+        chatTitle = message.chat.title
+        lz_buttons = [
+            [
+                InlineKeyboardButton('BAN', callback_data=f"bangrpchat:{chatTitle}:{chatID}")
+            ],[
+                InlineKeyboardButton('Close', callback_data="close_data")
+            ]]
+        lazy_markup=InlineKeyboardMarkup(lz_buttons)
+        await bot.send_message(LAZY_GROUP_LOGS,
+                            text=f"Plese Don't add me in this group....🤬🤬🤬",
+                            reply_markup=lazy_markup)
+        
     else:
         settings = await get_settings(message.chat.id)
         if settings["welcome"]:
