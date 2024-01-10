@@ -54,6 +54,8 @@ async def save_group(bot, message):
         chatTitle = message.chat.title
         lz_buttons = [
             [
+                InlineKeyboardButton('🎉 Mark Verified 💞', callback_data=f"verify_lazy_group:{chatTitle}:{chatID}")
+            ],[
                 InlineKeyboardButton('BAN', callback_data=f"bangrpchat:{chatTitle}:{chatID}")
             ],[
                 InlineKeyboardButton('Close', callback_data="close_data")
