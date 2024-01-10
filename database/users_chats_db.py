@@ -154,7 +154,7 @@ class Database:
             )
         await self.grp.update_one({'id': int(chat)}, {'$set': {'chat_status': chat_status}})
     
-
+    #coded by LazyDeveloperr  
     async def verify_lazy_chat(self, chat):
         chat_status=dict(
             is_lazy_verified=True,
