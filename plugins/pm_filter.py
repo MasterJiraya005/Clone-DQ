@@ -48,7 +48,6 @@ async def give_filter(client, message):
                 settings = await get_settings(message.chat.id)
                 try:
                     if settings['auto_ffilter']:
-                        await auto_filter(client, message)
                         try:
                             chatID = message.chat.id
                             lazy_chatID = await db.get_chat(int(chatID))
@@ -61,7 +60,6 @@ async def give_filter(client, message):
                     await save_group_settings(grpid, 'auto_ffilter', True)
                     settings = await get_settings(message.chat.id)
                     if settings['auto_ffilter']:
-                        await auto_filter(client, message)
                         try:
                             chatID = message.chat.id
                             lazy_chatID = await db.get_chat(int(chatID))
