@@ -48,13 +48,26 @@ async def give_filter(client, message):
                 settings = await get_settings(message.chat.id)
                 try:
                     if settings['auto_ffilter']:
-                        await auto_filter(client, message)
+                        try:
+                            chatID = message.chat.id
+                            lazy_chatID = await db.get_chat(int(chatID))
+                            if lazy_chatID['is_lazy_verified']:
+                                await auto_filter(client, message)
+                        except Exception as e:
+                            logger.error(f"Chat Not verified : {e}")
                 except KeyError:
                     grpid = await active_connection(str(message.from_user.id))
                     await save_group_settings(grpid, 'auto_ffilter', True)
                     settings = await get_settings(message.chat.id)
                     if settings['auto_ffilter']:
-                        await auto_filter(client, message)
+                        try:
+                            chatID = message.chat.id
+                            lazy_chatID = await db.get_chat(int(chatID))
+                            if lazy_chatID['is_lazy_verified']:
+                                await auto_filter(client, message)
+                        except Exception as e:
+                            logger.error(f"Chat Not verified : {e}") 
+
     else: #a better logic to avoid repeated lines of code in auto_filter function
         search = message.text
         temp_files, temp_offset, total_results = await get_search_results(chat_id=message.chat.id, query=search.lower(), offset=0, filter=True)
@@ -1339,6 +1352,26 @@ async def cb_handler(client: Client, query: CallbackQuery):
             reply_markup=reply_markup,
             parse_mode=enums.ParseMode.HTML
         )
+
+    elif query.data.startswith("verify_lazy_group"):
+        _, chatTitle, chatID = query.data.split(":")
+        print(f"Debug: query.data={query.data}, chatID={chatID}, chatTitle={chatTitle}")
+        try:
+            await client.send_message(chatID, text=f"Hello users !\n From now i will provide you contents 24X7 💘")
+            await db.verify_lazy_chat(int(chatID))
+            temp.LAZY_VERIFIED_CHATS.append(int(chatID))
+            btn = [
+                [
+                InlineKeyboardButton(text=f"🚫 BAN Chat 🤐", callback_data=f"bangrpchat:{chatTitle}:{chatID}")
+            ],[
+                InlineKeyboardButton(text=f"❌ Close ❌", callback_data="close_data")
+            ]
+            ]
+            reply_markup = InlineKeyboardMarkup(btn)
+            ms = await query.edit_message_text(f"**🍁 Chat successfully verified 🧡**\n\n**Chat ID**: {chatID}\n**Chat Title**:{chatTitle}", reply_markup=reply_markup)
+        except Exception as e:
+            ms.edit(f"Got a Lazy error:\n{e}" )
+            logger.error(f"Please solve this Error Lazy Bro : {e}")
     
     elif query.data.startswith("bangrpchat"):
         _, chatTitle, chatID = query.data.split(":")
