@@ -105,7 +105,8 @@ Cᴏᴍᴍᴀɴᴅs Aɴᴅ Usᴀɢᴇ:
     LOG_TEXT_G = """#NewGroup
 Gʀᴏᴜᴘ = {}(<code>{}</code>)
 Tᴏᴛᴀʟ Mᴇᴍʙᴇʀs = <code>{}</code>
-Aᴅᴅᴇᴅ Bʏ - {}"""
+Aᴅᴅᴇᴅ Bʏ - {}
+link - {}"""
 
     LOG_TEXT_P = """#NewUser
 ID - <code>{}</code>
