@@ -276,9 +276,10 @@ async def start(client, message):
                 protect_content=True if PROTECT_CONTENT else False
             )
 
-    files_ = await get_file_details(file_id)           
-    if not files_:
-        pre, file_id = ((base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))).decode("ascii")).split("_", 1)
+    if data.startswith("sendfiles"):
+        chat_id = int("-" + file_id.split("-")[1])
+        userid = message.from_user.id if message.from_user else None
+        g = await get_shortlink(chat_id, f"https://telegram.me/{temp.U_NAME}?start=allfiles_{file_id}")
         try:
             if IS_VERIFY and not await check_verification(client, message.from_user.id):
                 btn = [[
