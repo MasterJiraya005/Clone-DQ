@@ -256,7 +256,7 @@ async def next_page(bot, query):
                 ],
             )
     btn.insert(0, [
-        InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", url=f"https://telegram.me/{temp.U_NAME}?start=allfiles_{file_id}"),
+        InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", url=f"https://telegram.me/{temp.U_NAME}?start=send_fall_files_{offset}_{req}"),
         InlineKeyboardButton("! Lᴀɴɢᴜᴀɢᴇs !", callback_data=f"select_lang#{req}")
     ])
     btn.insert(0, [
@@ -368,7 +368,7 @@ async def language_check(bot, query):
             )
         
         btn.insert(0, [
-            InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", url=f"https://telegram.me/{temp.U_NAME}?start=allfiles_{file_id}"),
+            InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", url=f"https://telegram.me/{temp.U_NAME}?start=send_fall_{pre}_{0}_{userid}"),
             InlineKeyboardButton("! Lᴀɴɢᴜᴀɢᴇs !", callback_data=f"select_lang#{userid}")
         ])
 
@@ -1697,7 +1697,7 @@ async def auto_filter(client, msg, spoll=False):
         )
 
     btn.insert(0, [
-        InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", url=f"https://telegram.me/{temp.U_NAME}?start=allfiles_{file_id}"),
+        InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", url=f"https://telegram.me/{temp.U_NAME}?start=send_fall_{pre}_{0}_{message.from_user.id}"),
         InlineKeyboardButton("! Lᴀɴɢᴜᴀɢᴇs !", callback_data=f"select_lang#{message.from_user.id}")
     ])
 
