@@ -251,7 +251,7 @@ async def start(client, message):
         if is_valid == True:
             if fileid == "send_all":
                 btn = [[
-                    InlineKeyboardButton("Gᴇᴛ Fɪʟᴇ", callback_data=f"checksub#send_all")
+                    InlineKeyboardButton("Gᴇᴛ Fɪʟᴇ", url=f"https://telegram.me/{temp.U_NAME}?start=checksub#send_all")
                 ]]
                 await verify_user(client, userid, token)
                 await message.reply_text(
