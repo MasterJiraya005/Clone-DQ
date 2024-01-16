@@ -38,7 +38,7 @@ BUTTONS = {}
 SPELL_CHECK = {}
 
 
-@Client.on_message(filters.group | filters.private & filters.text & filters.incoming)
+@Client.on_message(filters.group & filters.text & filters.incoming)
 async def give_filter(client, message):
     if message.chat.id != SUPPORT_CHAT_ID:
         glob = await global_filters(client, message)
@@ -48,26 +48,13 @@ async def give_filter(client, message):
                 settings = await get_settings(message.chat.id)
                 try:
                     if settings['auto_ffilter']:
-                        try:
-                            chatID = message.chat.id
-                            lazy_chatID = await db.get_chat(int(chatID))
-                            if lazy_chatID['is_lazy_verified']:
-                                await auto_filter(client, message)
-                        except Exception as e:
-                            logger.error(f"Chat Not verified : {e}")
+                        await auto_filter(client, message)
                 except KeyError:
                     grpid = await active_connection(str(message.from_user.id))
                     await save_group_settings(grpid, 'auto_ffilter', True)
                     settings = await get_settings(message.chat.id)
                     if settings['auto_ffilter']:
-                        try:
-                            chatID = message.chat.id
-                            lazy_chatID = await db.get_chat(int(chatID))
-                            if lazy_chatID['is_lazy_verified']:
-                                await auto_filter(client, message)
-                        except Exception as e:
-                            logger.error(f"Chat Not verified : {e}") 
-
+                        await auto_filter(client, message)
     else: #a better logic to avoid repeated lines of code in auto_filter function
         search = message.text
         temp_files, temp_offset, total_results = await get_search_results(chat_id=message.chat.id, query=search.lower(), offset=0, filter=True)
@@ -256,7 +243,7 @@ async def next_page(bot, query):
                 ],
             )
     btn.insert(0, [
-        InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", url=f"https://telegram.me/{temp.U_NAME}?start=send_fall_files_{offset}_{req}"),
+        InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", callback_data=f"send_fall#files#{offset}#{req}"),
         InlineKeyboardButton("! Lᴀɴɢᴜᴀɢᴇs !", callback_data=f"select_lang#{req}")
     ])
     btn.insert(0, [
@@ -368,7 +355,7 @@ async def language_check(bot, query):
             )
         
         btn.insert(0, [
-            InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", url=f"https://telegram.me/{temp.U_NAME}?start=send_fall_{pre}_{0}_{userid}"),
+            InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", callback_data=f"send_fall#{pre}#{0}#{userid}"),
             InlineKeyboardButton("! Lᴀɴɢᴜᴀɢᴇs !", callback_data=f"select_lang#{userid}")
         ])
 
@@ -1352,67 +1339,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             reply_markup=reply_markup,
             parse_mode=enums.ParseMode.HTML
         )
-
-    elif query.data.startswith("verify_lazy_group"):
-        _, chatTitle, chatID = query.data.split(":")
-        print(f"Debug: query.data={query.data}, chatID={chatID}, chatTitle={chatTitle}")
-        try:
-            await client.send_message(chatID, text=f"Hello users !\n From now i will provide you contents 24X7 💘")
-            await db.verify_lazy_chat(int(chatID))
-            temp.LAZY_VERIFIED_CHATS.append(int(chatID))
-            btn = [
-                [
-                InlineKeyboardButton(text=f"🚫 BAN Chat 🤐", callback_data=f"bangrpchat:{chatTitle}:{chatID}")
-            ],[
-                InlineKeyboardButton(text=f"❌ Close ❌", callback_data="close_data")
-            ]
-            ]
-            reply_markup = InlineKeyboardMarkup(btn)
-            ms = await query.edit_message_text(f"**🍁 Chat successfully verified 🧡**\n\n**Chat ID**: {chatID}\n**Chat Title**:{chatTitle}", reply_markup=reply_markup)
-        except Exception as e:
-            ms.edit(f"Got a Lazy error:\n{e}" )
-            logger.error(f"Please solve this Error Lazy Bro : {e}")
     
-    elif query.data.startswith("bangrpchat"):
-        _, chatTitle, chatID = query.data.split(":")
-        print(f"Debug: query.data={query.data}, chatID={chatID}, chatTitle={chatTitle}")
-        try:
-            await client.send_message(chatID, text=f"Oops! Sorry, Let's Take a break\nThis is my last and Good Bye message to you all. \n\nContact my admin for more info")
-            await db.disable_chat(int(chatID))
-            temp.BANNED_CHATS.append(int(chatID))
-            btn = [
-                [
-                InlineKeyboardButton(text=f"⚡ Enable Chat 🍁", callback_data=f"enablelazychat:{chatTitle}:{chatID}")
-            ],[
-                InlineKeyboardButton(text=f"❌ Close ❌", callback_data="close_data")
-            ]
-            ]
-            reply_markup = InlineKeyboardMarkup(btn)
-            ms = await query.edit_message_text(f"**chat successfully disabled** ✅\n\n**Chat ID**: {chatID}\n\n**Chat Title**:{chatTitle}", reply_markup=reply_markup)
-        except Exception as e:
-            ms.edit(f"Got a Lazy error:\n{e}" )
-            logger.error(f"Please solve this Error Lazy Bro : {e}")
-    
-    elif query.data.startswith("enablelazychat"):
-        _, chatTitle , chatID = query.data.split(":")
-        print(f"Debug: query.data={query.data}, chatID={chatID}, chatTitle={chatTitle}")
-        try:
-            sts = await db.get_chat(int(chatID))
-            if not sts:
-                return await query.answer("Chat Not Found In DB !", show_alert=True)
-            if not sts.get('is_disabled'):
-                return await query.answer('This chat is not yet disabled.', show_alert=True)
-            await db.re_enable_chat(int(chatID))
-            temp.BANNED_CHATS.remove(int(chatID))
-            btn = [[
-                    InlineKeyboardButton(text=f"❌ Close ❌", callback_data="close_data")
-                ]]
-            reply_markup = InlineKeyboardMarkup(btn)
-            ms = await query.edit_message_text(f"**chat successfully Enabled** 💞\n\n**Chat ID**: {chatID}\n\n**Chat Title**:{chatTitle}", reply_markup=reply_markup)
-        except Exception as e:
-            ms.edit(f"Got a Lazy error:\n{e}" )
-            logger.error(f"Please solve this Error Lazy Bro : {e}")
-
     elif query.data == "store_file":
         buttons = [[
             InlineKeyboardButton('⟸ Bᴀᴄᴋ', callback_data='help')
@@ -1697,7 +1624,7 @@ async def auto_filter(client, msg, spoll=False):
         )
 
     btn.insert(0, [
-        InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", url=f"https://telegram.me/{temp.U_NAME}?start=send_fall_{pre}_{0}_{message.from_user.id}"),
+        InlineKeyboardButton("! Sᴇɴᴅ Aʟʟ Tᴏ PM !", callback_data=f"send_fall#{pre}#{0}#{message.from_user.id}"),
         InlineKeyboardButton("! Lᴀɴɢᴜᴀɢᴇs !", callback_data=f"select_lang#{message.from_user.id}")
     ])
 
